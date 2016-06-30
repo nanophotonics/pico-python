@@ -5,9 +5,9 @@ import time
 import platform
 
 if platform.system() == "Windows":
-	lib = windll.LoadLibrary("ps3000a.dll")
+	lib = windll.LoadLibrary("ps5000a.dll")
 elif platform.system() == "Linux":
-	lib = cdll.LoadLibrary("libps3000a.so")
+	lib = cdll.LoadLibrary("libps5000a.so")
 
 
 # Enumerating units
@@ -16,7 +16,7 @@ print "Enumerating units...\n\n"
 count = c_short()
 serials = (c_char * 100)()
 serialLth = c_short()
-lib.ps3000aEnumerateUnits(byref(count), byref(serials), byref(serialLth))
+lib.ps5000aEnumerateUnits(byref(count), byref(serials), byref(serialLth))
 
 print "count:", count
 print "serial numbers: ", serials[0:100]
@@ -29,7 +29,7 @@ print "\n\nAttempting to connect to", serial_num, "\n\n"
 handle = c_short()
 s = create_string_buffer(serial_num)
 
-m = lib.ps3000aOpenUnit(byref(handle), byref(s))
+m = lib.ps5000aOpenUnit(byref(handle), byref(s))
 print "Result code:", m
 print "Scope handle:", handle.value
 
@@ -37,13 +37,13 @@ try:
 	# flash led
 	print "\n\nFlashing LED...\n\n"
 	start = c_short(10)
-	lib.ps3000aFlashLed(handle, start)
+	lib.ps5000aFlashLed(handle, start)
 	time.sleep(5)
 except:
 	print "led wouldn't flash"
 	pass
 # close unit
 print "\n\nClosing scope...\n\n"
-m = lib.ps3000aCloseUnit(handle)
+m = lib.ps5000aCloseUnit(handle)
 if m == 0:
 	print "Unit", serial_num, "shut down."

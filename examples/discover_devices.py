@@ -5,11 +5,11 @@ By: Mark Harfouche
 
 """
 from __future__ import division
-from picoscope import ps6000
+from picoscope import ps5000a
 import time
 
 if __name__ == "__main__":
-    ps = ps6000.PS6000(connect=False)
+    ps = ps5000a.PS5000a(connect=False)
 
     allSerialNumbers = ps.enumerateUnits()
 
@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     # you can open devices by serial number
     serial = allSerialNumbers[0]
-    ps = ps6000.PS6000(serial)
+    ps = ps5000a.PS5000a(serial)
 
     # do stuff
     ps.flashLed(10)

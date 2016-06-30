@@ -6,7 +6,7 @@ import math
 import time
 import inspect
 import numpy as np
-from picoscope import ps6000
+from picoscope import ps5000a
 
 import pylab as plt
 
@@ -23,14 +23,14 @@ def fft(signal, freq):
 
     return (freqs, FFTdb)
 
-def examplePS6000():    
+def examplePS5000a():    
 
     fig=plt.figure()
     plt.ion()    
     plt.show()
     
     print "Attempting to open..."
-    ps = ps6000.PS6000()
+    ps = ps5000a.PS5000a()
 
     #Example of simple capture
     res = ps.setSamplingFrequency(250E6, 4096)
@@ -68,4 +68,4 @@ def examplePS6000():
     ps.close()
                              
 if __name__ == "__main__":
-    examplePS6000()
+    examplePS5000a()

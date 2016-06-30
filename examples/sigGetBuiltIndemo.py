@@ -1,10 +1,10 @@
 """
-PS6000 Siggen Demo.
+PS5000a Siggen Demo.
 
 By: Mark Harfouche
 
-This is a demo of how to use Siggen with the Picoscope 6000
-It was tested with the PS6403B USB2.0 version
+This is a demo of how to use Siggen with the Picoscope 5000a
+UNTESTED. NO: It was tested with the PS5444B USB2.0 version
 
 The system is very simple:
 
@@ -19,17 +19,17 @@ See http://www.picotech.com/support/topic12969.html
 from __future__ import division
 
 import time
-from picoscope import ps6000
+from picoscope import ps5000a
 import pylab as plt
 import numpy as np
 
 if __name__ == "__main__":
     print(__doc__)
 
-    print("Attempting to open Picoscope 6000...")
+    print("Attempting to open Picoscope 5000a...")
 
     # see page 13 of the manual to understand how to work this beast
-    ps = ps6000.PS6000()
+    ps = ps5000a.PS5000a()
 
     print(ps.getAllUnitInfo())
 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     plt.hold(True)
     plt.plot(dataTimeAxis, dataA, label="Waveform")
     plt.grid(True, which='major')
-    plt.title("Picoscope 6000 waveforms")
+    plt.title("Picoscope 5000a waveforms")
     plt.ylabel("Voltage (V)")
     plt.xlabel("Time (ms)")
     plt.legend()

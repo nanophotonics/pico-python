@@ -438,3 +438,55 @@ class PS5000a(_PicoscopeBase):
             )
         self.checkResult(m)
         return noOfSamples.value
+
+    def _lowLevelEnumerateUnits(self):
+        count = c_int16(0)
+        m = self.lib.ps5000aEnumerateUnits(byref(count), None, None)
+        self.checkResult(m)
+        # a serial number is rouhgly 8 characters
+        # an extra character for the comma
+        # and an extra one for the space after the comma?
+        # the extra two also work for the null termination
+        serialLth = c_int16(count.value * (8 + 2))
+        serials = create_string_buffer(serialLth.value + 1)
+
+        m = self.lib.ps5000aEnumerateUnits(byref(count), serials, byref(serialLth))
+        self.checkResult(m)
+
+        serialList = str(serials.value.decode('utf-8')).split(',')
+
+        serialList = [x.strip() for x in serialList]
+
+        return serialList
+        
+    def _lowLevelOpenUnitAsync(self, sn):
+        c_status = c_int16()
+        if sn is not None:
+            serialNullTermStr = create_string_buffer(sn)
+        else:
+            serialNullTermStr = None
+
+        # Passing None is the same as passing NULL
+        m = self.lib.ps5000aOpenUnitAsync(byref(c_status), serialNullTermStr)
+        self.checkResult(m)
+
+        return c_status.value
+
+    def _lowLevelOpenUnitProgress(self):
+        complete = c_int16()
+        progressPercent = c_int16()
+        handle = c_int16()
+
+        m = self.lib.ps5000aOpenUnitProgress(byref(handle), byref(progressPercent), byref(complete))
+        self.checkResult(m)
+
+        if complete.value != 0:
+            self.handle = handle.value
+
+        # if we only wanted to return one value, we could do somethign like
+        # progressPercent = progressPercent * (1 - 0.1 * complete)
+        return (progressPercent.value, complete.value)
+
+#    def _lowLevelCloseUnit(self):
+#        m = self.lib.ps5000aCloseUnit(c_int16(self.handle))
+#        self.checkResult(m)

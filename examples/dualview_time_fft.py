@@ -5,10 +5,10 @@
 from PyQt4 import QtGui, QtCore
 import pyqtgraph as pg
 import numpy as np
-from picoscope import ps6000
+from picoscope import ps5000a
 
 def setupScope():
-    ps = ps6000.PS6000()
+    ps = ps5000a.PS5000a()
 
     #Example of simple capture
     res = ps.setSamplingFrequency(500E6, 4096)
