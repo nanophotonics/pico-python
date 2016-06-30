@@ -50,6 +50,11 @@ import math
 # to load the proper dll
 import platform
 
+# tell it where the picoscope dll libraries are located
+import os
+dlldir=r"C:\Program Files\Pico Technology\SDK\lib"
+os.environ['PATH'] = dlldir + ';' + os.environ['PATH']
+
 # Do not import or use ill definied data types
 # such as short int or long
 # use the values specified in the h file
@@ -383,3 +388,53 @@ class PS5000a(_PicoscopeBase):
             c_int16(self.handle),
             c_enum(resolution))
         self.checkResult(m)
+
+    def _lowLevelMemorySegments(self, nSegments):
+        nMaxSamples = c_uint32()
+
+        m = self.lib.ps5000aMemorySegments(c_int16(self.handle),
+                                          c_uint32(nSegments), byref(nMaxSamples))
+        self.checkResult(m)
+
+        return nMaxSamples.value
+    
+    def _lowLevelSetNoOfCaptures(self, nCaptures):
+        m = self.lib.ps5000aSetNoOfCaptures(c_int16(self.handle), c_uint32(nCaptures))
+        self.checkResult(m)
+        
+        
+
+    def _lowLevelSetDataBuffers(self, channel, bufferMax, bufferMin, downSampleRatioMode):
+        bufferMaxPtr = bufferMax.ctypes.data_as(POINTER(c_int16))
+        bufferMinPtr = bufferMin.ctypes.data_as(POINTER(c_int16))
+        bufferLth = len(bufferMax)
+
+        m = self.lib.ps5000aSetDataBuffers(c_int16(self.handle), c_enum(channel),
+                                          bufferMaxPtr, bufferMinPtr, c_uint32(bufferLth),
+                                          c_enum(downSampleRatioMode))
+        self.checkResult(m)
+
+    def _lowLevelClearDataBuffers(self, channel):
+        m = self.lib.ps5000aSetDataBuffers(c_int16(self.handle), c_enum(channel),
+                                          c_void_p(), c_void_p(), c_uint32(0), c_enum(0))
+        self.checkResult(m)
+
+    # Bulk values.
+    # These would be nice, but the user would have to provide us
+    # with an array.
+    # we would have to make sure that it is contiguous amongst other things
+    def _lowLevelGetValuesBulk(self,
+                               numSamples, fromSegmentIndex, toSegmentIndex,
+                               downSampleRatio, downSampleRatioMode,
+                               overflow):
+        noOfSamples = c_uint32(numSamples)
+
+        m = self.lib.ps5000aGetValuesBulk(
+            c_int16(self.handle),
+            byref(noOfSamples),
+            c_uint32(fromSegmentIndex), c_uint32(toSegmentIndex),
+            c_uint32(downSampleRatio), c_enum(downSampleRatioMode),
+            overflow.ctypes.data_as(POINTER(c_int16))
+            )
+        self.checkResult(m)
+        return noOfSamples.value
