@@ -23,7 +23,7 @@ if __name__ == "__main__":
     ps = ps5000a.PS5000a()
     
     print("\nFound the following picoscope:")
-    print(ps.getAllUnitInfo())
+    print(ps.getAllUnitInfo() + "\n")
 
     # now = time.strftime("%Y%m%d_%H%M%S")
     # filename = "sweep_" + now + ".swp"
