@@ -490,3 +490,21 @@ class PS5000a(_PicoscopeBase):
 #    def _lowLevelCloseUnit(self):
 #        m = self.lib.ps5000aCloseUnit(c_int16(self.handle))
 #        self.checkResult(m)
+
+    # Streaming related functions
+    def _lowLevelGetStreamingLatestValues():
+        pass
+
+    def _lowLevelNoOfStreamingValues(self):
+        noOfValues = c_uint32()
+
+        m = self.lib.ps5000aNoOfStreamingValues(c_int16(self.handle), byref(noOfValues))
+        self.checkResult(m)
+
+        return noOfValues.value
+
+    def _lowLevelRunStreaming():
+        pass
+
+    def _lowLevelStreamingReady():
+        pass

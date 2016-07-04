@@ -13,6 +13,23 @@ picoscope = reload(picoscope)
 from picoscope import ps5000a
 ps5000a = reload(ps5000a)
 
+from nplab.ui.ui_tools import UiTools
+
+class PicoScopeGUI(QtGui.QMainWindow, UiTools):
+    """
+    GUI which records data from the PicoScope.
+    """
+    
+    def __init__(self, data_file, parent=None):
+        super(HDF5SpectrumAnalyser, self).__init__(parent)
+        self.data_file = data_file
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'PicoScopeGUI.ui'), self)
+        
+        self.setChannels_pushButton.clicked.connect(self.set_channels)
+    
+    def set_channels(self):
+        pass
+
 if __name__ == "__main__":
     print(__doc__)
 
@@ -87,7 +104,8 @@ if __name__ == "__main__":
     Sampling interval and timebase setup.
     """
     waveform_duration = 600E-3 # seconds
-    sampling_interval = waveform_duration / 4096 # where does 4096 number come from?
+    number_of_samples = 4096
+    sampling_interval = waveform_duration / number_of_samples
 
     (actualSamplingInterval, nSamples, maxSamples) = \
         ps.setSamplingInterval(sampling_interval, waveform_duration)

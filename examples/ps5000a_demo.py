@@ -25,8 +25,9 @@ if __name__ == "__main__":
 
     print("Attempting to open Picoscope 5000a...")
     
-    SERIAL_NUM = 'CS960/049'
-    ps = ps5000a.PS5000a(SERIAL_NUM)
+#    SERIAL_NUM = 'CS960/049'
+#    ps = ps5000a.PS5000a(SERIAL_NUM)
+    ps = ps5000a.PS5000a()
 
     print("Found the following picoscope:")
     print(ps.getAllUnitInfo())
