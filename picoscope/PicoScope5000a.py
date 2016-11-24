@@ -41,7 +41,6 @@ class PicoScope5000a(ps5000a.PS5000a, Instrument):
         
         print("Found the following picoscope:\n")
         print(self.getAllUnitInfo() + '\n')
-#        print('')
         
         self._model_name = None
         self._serial_number = None
@@ -76,6 +75,9 @@ class PicoScope5000a(ps5000a.PS5000a, Instrument):
     sampling_interval = property(get_sampling_interval)
     
     def set_sampling_interval(self):
+        """
+        Sampling interval and timebase setup.
+        """
         try:
             self.calculate_sampling_interval() # recalculate the sampling interval first
             (self._sampling_interval, self._number_of_samples, self.max_samples) = \
@@ -130,15 +132,39 @@ class PicoScope5000a(ps5000a.PS5000a, Instrument):
 if __name__ == "__main__":
     print(__doc__)
     
-    ps = PicoScope5000a()
-    
-#    print("Found the following picoscope:")
-#    print(ps.getAllUnitInfo())
-    
-    ps.model_name
-    ps.serial_number
-    
+    ps = PicoScope5000a()   
     ps.set_sampling_interval()
+    
+    channelRangeA = ps.setChannel(channel="A",                                  
+                                 coupling="DC", 
+                                 VRange=10.0, 
+                                 VOffset=0.0,
+                                 enabled=True,                                  
+                                 BWLimited=False,
+                                 probeAttenuation=1.0,
+                                 )
+    print("A channel range = %d V" % channelRangeA)
+    
+    channelRangeB = ps.setChannel(channel="B",                                  
+                                 coupling="DC", 
+                                 VRange=10.0, 
+                                 VOffset=0.0,
+                                 enabled=True,                                  
+                                 BWLimited=False,
+                                 probeAttenuation=1.0,
+                                 )
+    print("B channel range = %d V" % channelRangeA)
+    
+    ps.setSimpleTrigger(trigSrc='A', 
+                        threshold_V=0.5, 
+                        direction='Rising', 
+                        delay=0,
+                        timeout_ms=100, 
+                        enabled=True
+                        )
+                        
+    number_of_captures = 1
+    ps.setNoOfCaptures(number_of_captures)
     
 
     
