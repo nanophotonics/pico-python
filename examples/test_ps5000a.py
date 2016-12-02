@@ -25,7 +25,7 @@ if __name__ == "__main__":
 #    ps_channels = ['B']    
     
     """Sampling interval and timebase setup."""    
-    waveform_duration = 1.2 # seconds
+    waveform_duration = 1.5 # seconds
     number_of_samples = 2**11
     sampling_interval = waveform_duration / number_of_samples
     (actualSamplingInterval, nSamples, maxSamples) = \
@@ -60,8 +60,8 @@ if __name__ == "__main__":
         
         data = [0.0, 0.0] 
         channelRange = ps_channels_range[i]            
-        while max(data) < 32512*0.3 or \
-              max(data) > 32512*0.95:
+        while max(data) < ps_channels_range[i]*0.3 or \
+              max(data) > ps_channels_range[i]*0.95:
                         
             """Set up channel range."""
             channelRange = ps.setChannel(channel=ps_channels[i],
@@ -72,7 +72,7 @@ if __name__ == "__main__":
                                  BWLimited=False,
                                  probeAttenuation=1.0,
                                  ) 
-            print ps_channels[i] + ' channel range = ' + str(channelRange) + ' V'
+            print 'Channel ' + ps_channels[i] + ' range = ' + str(channelRange) + ' V'
             ps_channels_range[i] = channelRange
     
             """Set up data collection."""
@@ -82,16 +82,24 @@ if __name__ == "__main__":
             """Collect data."""
             (data, numSamplesReturnedA, overflow) = \
                 ps.getDataRaw(channel=ps_channels[i])
-            print 'Maximum value = ' + str(max(data)) + '\n'
+                
+            """Convert data to volts."""
+            data = data/32512.0*ps_channels_range[i]
+            print 'Maximum voltage = ' + str(max(data)) + ' V\n'
             
             """Modify chanel range if data is too small/big."""
-            if max(data) < 32512*0.3:
+            if max(abs(data)) < ps_channels_range[i]*0.3:
                 channelRange = channelRange / 2
-            elif max(data) > 32512*0.95:
-                channelRange = channelRange * 2  
-            
-        """Convert data to volts."""
-        data = data/32512.0*ps_channels_range[i]
+            elif max(abs(data)) > ps_channels_range[i]*0.95:
+                channelRange = channelRange * 2              
+            elif max(abs(data)) >= 12:
+                print 'WARNING!!! Channel ' + ps_channels[i] + ' is saturated!!!'
+                
+            if channelRange < 0.01:
+                break
+            elif channelRange > 20.0:
+                break            
+        
         
         """Append data to list."""
         ps_data[i].append(data)
