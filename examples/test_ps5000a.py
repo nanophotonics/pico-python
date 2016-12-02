@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     """Simple Trigger setup."""
     ps.setSimpleTrigger(trigSrc=ps_channels[0], 
-                        threshold_V=0.02, 
+                        threshold_V=0.001, 
                         direction='Rising', 
                         delay=0,
                         timeout_ms=100, 
@@ -53,16 +53,16 @@ if __name__ == "__main__":
     
     
     ps_channels_range = []
-    ps_data = []                                                         
+    ps_data = []     
+    ps_autorange = []
     for i in range(len(ps_channels)):
         ps_channels_range.append(0.02)
         ps_data.append([])
+        ps_autorange.append(True)
         
-        data = [0.0, 0.0] 
-        channelRange = ps_channels_range[i]            
-        while max(data) < ps_channels_range[i]*0.3 or \
-              max(data) > ps_channels_range[i]*0.95:
-                        
+    while any(ps_autorange):
+        for i in range(len(ps_channels)):    
+            channelRange = ps_channels_range[i]
             """Set up channel range."""
             channelRange = ps.setChannel(channel=ps_channels[i],
                                  coupling="DC", 
@@ -74,37 +74,40 @@ if __name__ == "__main__":
                                  ) 
             print 'Channel ' + ps_channels[i] + ' range = ' + str(channelRange) + ' V'
             ps_channels_range[i] = channelRange
-    
-            """Collect data."""
-            ps.runBlock()
-            ps.waitReady()
+        print ''
+        
+        """Collect data."""
+        ps.runBlock()
+        ps.waitReady()
                   
+        for i in range(len(ps_channels)):
             """Read data from the buffer."""
             (data, numSamplesReturned, overflow) = \
                 ps.getDataRaw(channel=ps_channels[i])
                 
             """Convert data to volts."""
             data = data/32512.0*ps_channels_range[i]
-            print 'Maximum voltage = ' + str(max(data)) + ' V\n'
+            print 'Channel ' + ps_channels[i] + ' max = ' + str(max(data)) + ' V'
             
             """Modify chanel range if data is too small/big."""
-            if max(abs(data)) < ps_channels_range[i]*0.3:
-                channelRange = channelRange / 2.5
-            elif max(abs(data)) > ps_channels_range[i]*0.95:
-                channelRange = channelRange * 2              
-            elif max(abs(data)) >= 12:
+            if max(abs(data)) < ps_channels_range[i]*0.3 and ps_channels_range[i] > 0.01:
+                ps_channels_range[i] = ps_channels_range[i] / 2.5
+            elif max(abs(data)) > ps_channels_range[i]*0.95 and ps_channels_range[1] < 20:
+                ps_channels_range[i] = ps_channels_range[i] * 2     
+            else:
+                ps_autorange[i] = False
+                    
+            if max(abs(data)) >= 12:
                 print 'WARNING!!! Channel ' + ps_channels[i] + ' is saturated!!!'
-                
-            if channelRange < 0.005 or channelRange > 20.0:
-                print 'Exit PicoScope autorange loop\n'
-                break          
         
+            """Append data to list."""
+            ps_data[i] = data # units = volts
+            
+        print ''
         
-        """Append data to list."""
-        ps_data[i].append(data)
-        
+    for i in range(len(ps_channels)):        
         """Plot data."""
-        plt.plot(data)
+        plt.plot(ps_data[i])
         
     ps.close()
 
