@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     """Simple Trigger setup."""
     ps.setSimpleTrigger(trigSrc=ps_channels[0], 
-                        threshold_V=0.002, 
+                        threshold_V=0.02, 
                         direction='Rising', 
                         delay=0,
                         timeout_ms=100, 
@@ -75,12 +75,12 @@ if __name__ == "__main__":
             print 'Channel ' + ps_channels[i] + ' range = ' + str(channelRange) + ' V'
             ps_channels_range[i] = channelRange
     
-            """Set up data collection."""
+            """Collect data."""
             ps.runBlock()
             ps.waitReady()
                   
-            """Collect data."""
-            (data, numSamplesReturnedA, overflow) = \
+            """Read data from the buffer."""
+            (data, numSamplesReturned, overflow) = \
                 ps.getDataRaw(channel=ps_channels[i])
                 
             """Convert data to volts."""
@@ -89,16 +89,15 @@ if __name__ == "__main__":
             
             """Modify chanel range if data is too small/big."""
             if max(abs(data)) < ps_channels_range[i]*0.3:
-                channelRange = channelRange / 2
+                channelRange = channelRange / 2.5
             elif max(abs(data)) > ps_channels_range[i]*0.95:
                 channelRange = channelRange * 2              
             elif max(abs(data)) >= 12:
                 print 'WARNING!!! Channel ' + ps_channels[i] + ' is saturated!!!'
                 
-            if channelRange < 0.01:
-                break
-            elif channelRange > 20.0:
-                break            
+            if channelRange < 0.005 or channelRange > 20.0:
+                print 'Exit PicoScope autorange loop\n'
+                break          
         
         
         """Append data to list."""
